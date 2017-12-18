@@ -1,8 +1,7 @@
 ---
 title: "IODS course final project"
-author: "Volkova Anastasia"
+author: "Volkova Anastasia, mibisako@gmail.com"
 date: "18.12.2017"
-e-mail: "mibisako@gmail.com" 
 output:
   html_document:
     theme: cosmo
@@ -16,9 +15,13 @@ output:
 
 ##**IODS Final Project**
 
+**Abstract: Using the results of a survey on teaching and learning conducted by Kimmo Vehkalahti in 2014, a relationship between deep and strategic learning approaches had been found out using the binary regression. Gender, age, or attitudes towards subject of the course had no significant effect on the choice between deep or surface approaches**
+
 *I want to explore deep and surface learning approaches using binary logistic regression. I suppose that older students prefer deep LA in contrast to younger. I do not expect any gender differences. I also suppose that general attitude towards statistics may highly influence the LA - if people are not interested, they are more likely to use surface approach.*
 
 [Here you can find a link to my data wrangling script.](https://www.google.com "Wrangling learning2014")
+
+#Data
 
 ```{r}
 library(ggplot2)
@@ -31,7 +34,7 @@ dim(task)
 names(task)
 ```
 
-The dataset is the result of a survey on teaching and learning conducted by Kimmo Vehkalahti in 2014. Additional information about this research project can be found here https://www.slideshare.net/kimmovehkalahti/the-relationship-between-learning-approaches-and-students-achievements-in-an-introductory-statistics-course-in-finland and there http://www.helsinki.fi/~kvehkala/JYTmooc/JYTOPKYS2-meta.txt.
+The dataset is the results of a survey on teaching and learning conducted by Kimmo Vehkalahti in 2014. Additional information about this research project can be found here https://www.slideshare.net/kimmovehkalahti/the-relationship-between-learning-approaches-and-students-achievements-in-an-introductory-statistics-course-in-finland and there http://www.helsinki.fi/~kvehkala/JYTmooc/JYTOPKYS2-meta.txt.
 
 
 It has 166 observations of 11 variables. Learning approaches variables were created out of related questions and then adjusted.
@@ -47,6 +50,7 @@ We are most interested in two approaches, that lies in the DS variable, where
 
 
 
+#Correlations and visualizations
 
 ```{r}
 library(ggplot2)
@@ -59,14 +63,52 @@ There were more females than males in the study. The age of people ranges from 1
 To see what can influence the probabilities of choosing deep or surface approach a *binary logistic regression* will be used. 
 
 
+#Binary logistic regression
 
 ```{r}
-m1 <- glm(DS ~ strategic_adjusted + gender + Age, data = task, family = "binomial")
+m1 <- glm(DS ~ strategic_adjusted + gender + Age + attitude, data = task, family = "binomial")
 summary(m1)
+library(rcompanion)
+nagelkerke(m1)
 OR <- coef(m1) %>% exp # compute odds ratios (OR)
 CI <- confint(m1) %>% exp # compute confidence intervals (CI)
 cbind(OR, CI)
 ```
 
-According to R-squared, the final model explains around 18,5% of variance in the outcome. As it seems from the p-values, the age and gender are statistically insignificant in relation to the choosing of learning approaches. However, as expected, those people who have high scores on strategic learning approach questions, have more chances to use deep learning approach. The better is the general attitude towards statistics, the better the exam scores are (3,5255 score per each unit of attitude increase). 
+According to Nagelkerke R-squared, the model explains around 10% of variance in the outcome. As it seems from the p-values, the age, gender and attitude towards statistics are statistically insignificant in relation to the choosing of learning approaches. However, as expected, those people who have high scores on strategic learning approach questions, have more chances to use deep learning approach (6,88168 score per each unit of attitude increase, 974 times more likely). 
 
+
+#Final model and predictions
+
+```{r}
+m10 <- glm(DS ~ strategic_adjusted, data = task, family = "binomial")
+summary(m10)
+nagelkerke(m10)
+OR <- coef(m10) %>% exp # compute odds ratios (OR)
+CI <- confint(m10) %>% exp # compute confidence intervals (CI)
+cbind(OR, CI)
+probabilities <- predict(m10, type = "response") # predict() the probability of deep LA
+task <- mutate(task, probability = probabilities) # add the predicted probabilities
+task <- mutate(task, prediction = probability>0.5) # use the probabilities to make a prediction of high_use
+select(task, DS, strategic_adjusted, probability, prediction) %>% tail(10) # see the last ten original classes, predicted probabilities, and class predictions
+table(SD = task$DS, prediction = task$prediction) # tabulate the target variable versus the predictions
+table(SD = task$DS, prediction = task$prediction) %>% prop.table() %>% addmargins() # tabulate the target variable versus the predictions with margings:
+g <- ggplot(task, aes(x = probability, y = DS, col = prediction)) # initialize a plot of 'high_use' versus 'probability'
+g + geom_point() # define the geom as points and draw the plot
+# define a loss function (mean prediction error)
+loss_func <- function(class, prob) {
+  n_wrong <- abs(class - prob) > 0.5
+  mean(n_wrong)
+}
+
+# call loss_func to compute the average number of wrong predictions in the (training) data
+loss_func(class = task$DS, task$probability)
+```
+The obtained model is not ideal: while there were 136 correct predictions, there also were 30 cases that were diagnosted false (Type I&II errors). But still, this is a reasonable fit, as the training error is approximately 18%.
+
+#Conclusion
+
+The only significant predictor for choosing the deep learning approach is the high scores on strategic learning approach. It signifies "Organized Studying and Time Management", and this suits more for those students who are seeking meaning in contrast to those who have lack of purpose. 
+
+
+There is no gender or age differences in relation to the deep and surface LA. The general attitude to statistics also have no statistical importance.
