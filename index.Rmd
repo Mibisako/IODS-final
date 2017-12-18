@@ -16,7 +16,7 @@ output:
 
 ##**IODS Final Project**
 
-**Abstract: Using the results of a survey on teaching and learning conducted by Kimmo Vehkalahti in 2014, a relationship between deep and strategic learning approaches had been found out using the binary regression. Gender, age, or attitudes towards subject of the course had no significant effect on the choice between deep or surface approaches**
+**Abstract: Using the results of a survey on teaching and learning conducted by Kimmo Vehkalahti in 2014, a relationship between deep and strategic learning approaches had been found out using the binary regression. Gender, age, or attitudes towards subject of the course had no significant effect on the choice between deep or surface approaches**  
 
 *I want to explore deep and surface learning approaches using binary logistic regression. I suppose that older students prefer deep LA in contrast to younger. I do not expect any gender differences. I also suppose that general attitude towards statistics may highly influence the LA - if people are not interested, they are more likely to use surface approach.*
 
