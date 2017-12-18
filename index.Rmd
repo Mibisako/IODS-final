@@ -1,0 +1,40 @@
+---
+title: "IODS course final project"
+author: "Volkova Anastasia"
+date: "18.12.2017"
+e-mail: "mibisako@gmail.com"" 
+output:
+  html_document:
+    theme: cosmo
+    toc: true
+    toc_depth: 2
+    fig_caption: true
+    fig_width: 6
+    fig_height: 4
+    code_folding: hide
+---
+
+##**IODS Final Project**
+
+*I want to explore deep and surface learning approaches using binary logistic regression. I suppose that older students prefer deep LA in contrast to younger. I do not expect any gender differences. I also suppose that general attitude towards statistics may highly influence the LA - if people are not interested, they are more likely to use surface approach.*
+
+{r} [Here you can find a link to my data wrangling script](https://www.google.com "Wrangling learning2014")
+
+```{r}
+library(ggplot2)
+library(GGally)
+library(dplyr)
+library(tidyr)
+task<-read.table("C:/Users/Missao/Documents/GitHub/IODS-final/learning2014.txt", header=TRUE, sep="\t")
+str(task)
+dim(task)
+names(task)
+```
+
+The dataset is the result of a survey on teaching and learning conducted by Kimmo Vehkalahti in 2014. Additional information about this research project can be found here https://www.slideshare.net/kimmovehkalahti/the-relationship-between-learning-approaches-and-students-achievements-in-an-introductory-statistics-course-in-finland and there http://www.helsinki.fi/~kvehkala/JYTmooc/JYTOPKYS2-meta.txt.
+It has 166 observations of 11 variables. Learning approaches variables were created out of related questions and then adjusted.
+We are most interested in two approaches, that lies in the DS variable, where 
+**1** = Deep: Seeking Meaning, Relating Ideas, Use of Evidence, and 
+**0** = Surface: Lack of Purpose, Unrelated Memorising, Syllabus-boundness.
+
+
